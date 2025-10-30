@@ -3,215 +3,288 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>MR. PROOT TOAST - Research Portal</title>
+  <title>NEXUS-7</title>
   <style>
     :root {
-      --bg: #f8f9fc;
-      --card: #ffffff;
-      --text: #2d3748;
-      --accent: #5a67d8;
-      --border: #e2e8f0;
-    }
-    [data-theme="dark"] {
-      --bg: #1a202c;
-      --card: #2d3748;
-      --text: #e2e8f0;
-      --accent: #63b3ed;
-      --border: #4a5568;
+      --bg: #000;
+      --text: #0f0;
+      --accent: #0f0;
+      --card: #111;
+      --border: #0f0;
+      --error: #f55;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-      background: var(--bg); 
-      color: var(--text); 
-      font-family: 'Inter', 'Segoe UI', sans-serif; 
-      font-weight: 400; 
-      line-height: 1.5; 
-      transition: all 0.4s ease; 
-      padding: 16px;
-    }
-    .container { 
-      max-width: 960px; 
-      margin: auto; 
-      background: var(--card); 
-      border-radius: 20px; 
-      overflow: hidden; 
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
-      border: 1px solid var(--border);
-    }
-    .header { 
-      padding: 20px; 
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
-      color: white; 
-      text-align: center; 
-      font-size: 1.4rem; 
-      font-weight: 600;
-    }
-    .input-bar { 
-      padding: 18px; 
-      display: flex; 
-      gap: 12px; 
-      align-items: center; 
-      background: rgba(255,255,255,0.8); 
-      backdrop-filter: blur(10px);
-    }
-    input { 
-      flex: 1; 
-      padding: 14px 16px; 
-      font-size: 1rem; 
-      border: 2px solid var(--border); 
-      border-radius: 12px; 
-      background: transparent; 
+    body {
+      background: var(--bg);
       color: var(--text);
+      font-family: 'Courier New', monospace;
+      font-weight: bold;
+      line-height: 1.6;
+      transition: all 0.3s;
+      padding: 12px;
+      overflow-x: hidden;
+      position: relative;
     }
-    input::placeholder { color: #a0aec0; font-style: italic; }
-    button { 
-      padding: 14px 20px; 
-      background: var(--accent); 
-      color: white; 
-      border: none; 
-      border-radius: 12px; 
-      cursor: pointer; 
-      font-weight: 600; 
+    /* Scanline Effect */
+    body::before {
+      content: '';
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px);
+      pointer-events: none;
+      z-index: 9999;
+      opacity: 0.3;
+      animation: scan 8s linear infinite;
+    }
+    @keyframes scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+
+    .container {
+      max-width: 960px;
+      margin: auto;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 0 20px rgba(0,255,0,0.3);
+    }
+    .header {
+      padding: 16px;
+      background: #000;
+      color: var(--text);
+      text-align: center;
+      font-size: 1.4rem;
+      border-bottom: 1px solid var(--border);
+      text-shadow: 0 0 5px var(--accent);
+    }
+    .input-bar {
+      padding: 16px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      background: #000;
+    }
+    input {
+      flex: 1;
+      padding: 12px;
+      font-size: 1rem;
+      background: #000;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+    }
+    input::placeholder { color: #0a0; }
+    button {
+      padding: 12px 18px;
+      background: transparent;
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: bold;
       transition: 0.3s;
     }
-    button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(90,103,216,0.3); }
-    .viewer { 
-      width: 100%; 
-      height: 640px; 
+    button:hover {
+      background: var(--accent);
+      color: #000;
+      box-shadow: 0 0 10px var(--accent);
+    }
+    .viewer {
+      width: 100%;
+      height: 620px;
       border: 1px solid var(--border);
+      border-top: none;
       transition: all 0.3s;
     }
-    .info { 
-      padding: 12px; 
-      font-size: 0.85rem; 
-      color: #718096; 
-      text-align: center; 
-      background: #f7fafc; 
+    .info {
+      padding: 10px;
+      font-size: 0.8rem;
+      color: #0a0;
+      text-align: center;
+      background: #000;
       border-top: 1px solid var(--border);
     }
 
-    /* Settings */
-    .settings-btn { 
-      position: fixed; right: 20px; top: 20px; 
-      background: #9f7aea; color: white; 
-      width: 56px; height: 56px; border-radius: 50%; 
-      font-size: 28px; cursor: pointer; 
-      box-shadow: 0 6px 20px rgba(159,122,234,0.4); 
-      display: flex; align-items: center; justify-content: center; z-index: 1000;
+    /* Presets */
+    .presets {
+      padding: 8px 16px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      background: #000;
     }
-    .settings-panel { 
-      position: fixed; right: -340px; top: 0; width: 340px; height: 100%; 
-      background: var(--card); color: var(--text); 
-      padding: 24px; transition: right 0.5s cubic-bezier(0.25, 0.8, 0.25, 1); 
-      z-index: 999; box-shadow: -6px 0 30px rgba(0,0,0,0.15); 
-      border-left: 1px solid var(--border);
+    .preset-btn {
+      padding: 6px 10px;
+      background: transparent;
+      color: #0a0;
+      border: 1px solid #0a0;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+    .preset-btn:hover { background: #0a0; color: #000; }
+
+    /* Settings */
+    .settings-btn {
+      position: fixed; right: 16px; top: 16px;
+      background: transparent; color: var(--text);
+      width: 44px; height: 44px; border-radius: 50%;
+      font-size: 24px; cursor: pointer;
+      border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center; z-index: 1000;
+      box-shadow: 0 0 10px rgba(0,255,0,0.5);
+    }
+    .settings-panel {
+      position: fixed; right: -300px; top: 0; width: 300px; height: 100%;
+      background: #000; color: var(--text);
+      padding: 20px; transition: right 0.4s;
+      z-index: 999; border-left: 1px solid var(--border);
+      box-shadow: -5px 0 20px rgba(0,255,0,0.3);
     }
     .settings-panel.open { right: 0; }
-    .close-btn { float: right; font-size: 28px; cursor: pointer; color: #a0aec0; }
-    .setting { margin: 20px 0; }
-    label { display: flex; align-items: center; gap: 12px; font-size: 1rem; cursor: pointer; }
-    input[type="checkbox"] { transform: scale(1.4); accent-color: var(--accent); }
+    .close-btn { float: right; font-size: 24px; cursor: pointer; color: #0a0; }
+    .setting { margin: 16px 0; }
+    label { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; cursor: pointer; }
 
-    /* Rainbow Animation */
-    @keyframes rainbow { 
-      0% { background-position: 0% 50%; } 
-      50% { background-position: 100% 50%; } 
-      100% { background-position: 0% 50%; } 
+    /* Debug Panel */
+    .debug-panel {
+      position: fixed; bottom: 0; left: 0; width: 100%;
+      background: rgba(0,0,0,0.9); color: #0f0;
+      padding: 10px; font-size: 0.8rem;
+      border-top: 1px solid var(--border);
+      z-index: 1000; display: none;
+      max-height: 200px; overflow-y: auto;
+      font-family: 'Courier New', monospace;
     }
-    .rainbow { 
-      background: linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb, #1dd1a1, #5f27cd, #ff9ff3); 
-      background-size: 300% 300%; 
-      animation: rainbow 12s ease infinite; 
-    }
-    [data-theme="dark"] .rainbow { 
-      background: linear-gradient(90deg, #c44569, #b8860b, #2d98da, #10ac84, #341f97, #9c59d1); 
-      background-size: 300% 300%; 
-      animation: rainbow 15s ease infinite; 
-    }
+    .debug-panel.open { display: block; }
+    .debug-log { margin: 4px 0; }
+    .error { color: var(--error); }
 
-    /* Presets */
-    .presets { padding: 12px 18px; display: flex; gap: 8px; flex-wrap: wrap; }
-    .preset-btn { 
-      padding: 8px 14px; background: #edf2f7; color: #4a5568; 
-      border-radius: 8px; font-size: 0.85rem; cursor: pointer; 
-      transition: 0.2s;
-    }
-    .preset-btn:hover { background: var(--accent); color: white; }
+    /* Stealth Mode */
+    .stealth .input-bar, .stealth .presets, .stealth .info, .stealth .header { display: none !important; }
+    .stealth .viewer { border: none; height: 100vh; border-radius: 0; }
   </style>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 </head>
 <body>
-  <div class="settings-btn" onclick="toggleSettings()">⚙️</div>
+  <div class="settings-btn" onclick="toggleSettings()">Gear</div>
 
   <div class="container">
-    <div class="header">🌟 MR. PROOT TOAST - Educational Research Portal</div>
+    <div class="header">NEXUS-7 // SYSTEM ONLINE</div>
     
     <div class="input-bar">
-      <input type="text" id="urlInput" placeholder="Enter site (e.g. coolmathgames.com)" />
-      <button onclick="loadSite()">FRAME</button>
-      <button onclick="openInTab()" style="background:#48bb78;">TAB</button>
+      <input type="text" id="urlInput" placeholder="> TARGET: " />
+      <button onclick="loadSite()">EXECUTE</button>
+      <button onclick="openInTab()" style="background:transparent; border:1px solid #0f0;">NEW TAB</button>
     </div>
 
     <div class="presets">
-      <div class="preset-btn" onclick="loadPreset('coolmathgames.com')">CoolMath</div>
-      <div class="preset-btn" onclick="loadPreset('poki.com')">Poki</div>
-      <div class="preset-btn" onclick="loadPreset('krunker.io')">Krunker</div>
-      <div class="preset-btn" onclick="loadPreset('wikipedia.org')">Wiki</div>
+      <div class="preset-btn" onclick="loadPreset('coolmathgames.com')">CMATH</div>
+      <div class="preset-btn" onclick="loadPreset('poki.com')">POKI</div>
+      <div class="preset-btn" onclick="loadPreset('krunker.io')">KRUNK</div>
+      <div class="preset-btn" onclick="loadPreset('wikipedia.org')">WIKI</div>
     </div>
 
-    <iframe id="siteFrame" class="viewer" 
+    <iframe id="siteFrame" class="viewer"
       sandbox="allow-scripts allow-same-origin allow-forms allow-popups allow-modals allow-top-navigation allow-top-navigation-by-user-activation"
       allow="fullscreen autoplay encrypted-media picture-in-picture"
       loading="lazy">
     </iframe>
 
     <div class="info">
-      Double-click = Fullscreen • Esc = Exit • Settings ⚙️
+      DBLCLICK = FULLSCREEN • ESC = EXIT • CTRL+SHIFT+D = DEBUG
     </div>
   </div>
 
   <!-- Settings Panel -->
   <div class="settings-panel" id="settings">
-    <div class="close-btn" onclick="toggleSettings()">×</div>
-    <h3>Display Modes</h3>
+    <div class="close-btn" onclick="toggleSettings()">X</div>
+    <h3>SYSTEM CONFIG</h3>
     <div class="setting">
-      <label><input type="checkbox" id="rainbowMode" onchange="toggleRainbow()"> Rainbow Background</label>
+      <label><input type="checkbox" id="rainbowMode" onchange="toggleRainbow()"> SCANLINES</label>
     </div>
     <div class="setting">
-      <label><input type="checkbox" id="darkMode" onchange="toggleDark()"> Dark Mode</label>
+      <label><input type="checkbox" id="darkMode" onchange="toggleDark()"> NIGHT MODE (ON)</label>
     </div>
     <div class="setting">
-      <label><input type="checkbox" id="borderless" onchange="toggleBorder()"> Borderless Frame</label>
+      <label><input type="checkbox" id="borderless" onchange="toggleBorder()"> BORDER OFF</label>
     </div>
     <div class="setting">
-      <label><input type="checkbox" id="autoFull" onchange="toggleAutoFull()"> Auto-Fullscreen</label>
+      <label><input type="checkbox" id="autoFull" onchange="toggleAutoFull()"> AUTO-FS</label>
     </div>
+  </div>
+
+  <!-- Debug Panel -->
+  <div class="debug-panel" id="debugPanel">
+    <div style="margin-bottom:8px; color:#0f0;">NEXUS-7 DEBUG LOG // <span id="status">IDLE</span></div>
+    <div id="logContainer"></div>
   </div>
 
   <script>
     const frame = document.getElementById('siteFrame');
     const body = document.body;
     const input = document.getElementById('urlInput');
+    const debugPanel = document.getElementById('debugPanel');
+    const logContainer = document.getElementById('logContainer');
+    const status = document.getElementById('status');
+    let history = JSON.parse(localStorage.getItem('nexusHistory') || '[]');
+
+    // Log Function
+    function log(msg, type = 'info') {
+      const div = document.createElement('div');
+      div.className = `debug-log ${type}`;
+      div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      logContainer.appendChild(div);
+      logContainer.scrollTop = logContainer.scrollHeight;
+      if (logContainer.children.length > 50) logContainer.removeChild(logContainer.children[0]);
+    }
 
     function loadSite() {
       let url = input.value.trim();
-      if (!url) return alert("Enter a site!");
+      if (!url) return log('NO TARGET', 'error');
       if (!url.startsWith('http')) url = 'https://' + url;
+      
+      const start = performance.now();
+      status.textContent = 'LOADING...';
+      log(`EXECUTE: ${url}`);
+      
       frame.src = url;
-      console.log('Loading:', url);  // Debug: Check browser console (F12)
-      if (document.getElementById('autoFull').checked) setTimeout(() => frame.requestFullscreen(), 1000);
+      
+      frame.onload = () => {
+        const loadTime = ((performance.now() - start) / 1000).toFixed(2);
+        status.textContent = 'ONLINE';
+        log(`LOADED in ${loadTime}s`, 'success');
+        addToHistory(url);
+      };
+      
+      frame.onerror = () => {
+        status.textContent = 'ERROR';
+        log(`FAILED: ${url}`, 'error');
+      };
+      
+      if (document.getElementById('autoFull').checked) {
+        setTimeout(() => frame.requestFullscreen(), 1000);
+      }
     }
 
     function openInTab() {
       let url = input.value.trim();
-      if (!url) return alert("Enter a site!");
+      if (!url) return log('NO TARGET', 'error');
       if (!url.startsWith('http')) url = 'https://' + url;
       window.open(url, '_blank');
+      log(`OPEN TAB: ${url}`);
     }
 
     function loadPreset(site) {
       input.value = site;
       loadSite();
+    }
+
+    function addToHistory(url) {
+      if (!history.includes(url)) {
+        history.unshift(url);
+        if (history.length > 5) history.pop();
+        localStorage.setItem('nexusHistory', JSON.stringify(history));
+      }
     }
 
     // Enter key
@@ -231,7 +304,11 @@
     }
 
     function toggleRainbow() {
-      body.classList.toggle('rainbow', document.getElementById('rainbowMode').checked);
+      const enabled = document.getElementById('rainbowMode').checked;
+      body.style.background = enabled ? 'linear-gradient(45deg, #000, #111)' : '#000';
+      body.style.backgroundSize = enabled ? '400% 400%' : '';
+      if (enabled) body.style.animation = 'rainbow 20s ease infinite';
+      else body.style.animation = '';
     }
 
     function toggleDark() {
@@ -244,15 +321,36 @@
       frame.style.border = document.getElementById('borderless').checked ? 'none' : '';
     }
 
-    function toggleAutoFull() {
-      // Handled in loadSite
-    }
+    function toggleAutoFull() {}
 
-    // Load saved settings
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', e => {
+      if (e.ctrlKey && e.shiftKey) {
+        if (e.key === 'D') {
+          debugPanel.classList.toggle('open');
+          log('DEBUG PANEL TOGGLED');
+        }
+        if (e.key === 'S') {
+          document.body.classList.toggle('stealth');
+          log('STEALTH MODE: ' + (document.body.classList.contains('stealth') ? 'ON' : 'OFF'));
+        }
+      }
+      if (e.key === 'F11') {
+        e.preventDefault();
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
+        else document.exitFullscreen();
+      }
+    });
+
+    // Load settings
     if (localStorage.getItem('darkMode') === 'true') {
       document.getElementById('darkMode').checked = true;
       toggleDark();
     }
+
+    // Init
+    log('NEXUS-7 BOOTED');
+    status.textContent = 'READY';
   </script>
 </body>
 </html>
