@@ -14,6 +14,20 @@
       --error: #f55;
       --glow: 0 0 10px rgba(0,255,0,0.6);
     }
+    [data-theme="matrix"] {
+      --text: #0f0;
+      --accent: #0f0;
+      --bg: #000;
+      --card: #111;
+      --border: #0f0;
+    }
+    [data-theme="retro"] {
+      --text: #ff0;
+      --accent: #ff0;
+      --bg: #001;
+      --card: #113;
+      --border: #ff0;
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       background: var(--bg);
@@ -25,6 +39,7 @@
       overflow: hidden;
       position: relative;
       min-height: 100vh;
+      transition: all 0.4s;
     }
 
     /* Boot */
@@ -49,20 +64,8 @@
     .glow { text-shadow: var(--glow); }
 
     /* Layout */
-    .wrapper {
-      max-width: 1000px;
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .container {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: var(--glow);
-    }
+    .wrapper { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 8px; }
+    .container { background: var(--card); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; box-shadow: var(--glow); }
 
     .header { padding: 14px; background: #000; color: var(--text); text-align: center; font-size: 1.3rem; border-bottom: 1px solid var(--border); }
 
@@ -72,49 +75,47 @@
     button { padding: 8px 12px; background: transparent; color: var(--text); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 0.8rem; white-space: nowrap; }
     button:hover { background: var(--accent); color: #000; box-shadow: var(--glow); }
 
-    .viewer {
-      width: 100%; height: 580px; border: 1px solid var(--border); border-top: none;
-      transition: all 0.3s;
-    }
+    .viewer { width: 100%; height: 580px; border: 1px solid var(--border); border-top: none; transition: all 0.3s; }
     .viewer.fs { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 99999; border: none; border-radius: 0; }
 
     .info { padding: 8px; font-size: 0.75rem; color: #0a0; text-align: center; background: #000; border-top: 1px solid var(--border); }
 
-    /* Favorites & Games */
     .favorites, .game-grid { padding: 8px; display: flex; gap: 6px; flex-wrap: wrap; background: #000; max-height: 120px; overflow-y: auto; }
     .fav-btn, .game-btn { padding: 6px 10px; background: transparent; color: #0a0; border: 1px dashed #0a0; border-radius: 4px; font-size: 0.7rem; cursor: pointer; }
     .fav-btn:hover, .game-btn:hover { border: 1px solid var(--accent); color: var(--accent); }
 
-    /* Audio Visualizer */
-    .visualizer {
-      height: 60px; background: #000; display: flex; align-items: end; gap: 2px; padding: 0 8px; border-top: 1px solid var(--border);
-    }
+    /* Visualizer */
+    .visualizer { height: 60px; background: #000; display: flex; align-items: end; gap: 2px; padding: 0 8px; border-top: 1px solid var(--border); }
     .bar { width: 4px; background: var(--accent); transition: height 0.05s; }
 
-    /* Control Bar (Persistent) */
+    /* Control Bar */
     .control-bar {
       position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
       display: flex; gap: 8px; z-index: 1001; background: #000; padding: 6px; border: 1px solid var(--border); border-radius: 8px;
       flex-wrap: wrap; justify-content: center;
     }
 
-    /* UNHIDE Button */
+    /* UNHIDE */
     #unhideBtn {
       position: fixed; top: 16px; right: 16px; background: #f55; color: #000; width: 40px; height: 40px;
       border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 99998; display: none; animation: pulse 2s infinite;
     }
     @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
 
-    /* Panels */
+    /* DRAGGABLE PANELS */
     .panel {
-      position: fixed; width: 300px; height: 100%; background: #000; color: var(--text);
-      padding: 20px; transition: all 0.4s; z-index: 999; border: 1px solid var(--border);
+      position: fixed; width: 300px; background: #000; color: var(--text);
+      padding: 20px; z-index: 999; border: 1px solid var(--border);
       box-shadow: 0 0 20px rgba(0,255,0,0.3); overflow-y: auto;
+      user-select: none; cursor: move;
+      transition: none;
     }
-    .commands-panel { left: -300px; border-right: 1px solid var(--border); }
-    .commands-panel.open { left: 0; }
-    .settings-panel { right: -300px; border-left: 1px solid var(--border); }
-    .settings-panel.open { right: 0; }
+    .panel-header {
+      cursor: grab; padding: 8px; background: #111; border-bottom: 1px solid var(--border); margin: -20px -20px 16px -20px; text-align: center; font-weight: bold;
+    }
+    .panel-header:active { cursor: grabbing; }
+    .commands-panel { top: 100px; left: 50px; }
+    .settings-panel { top: 100px; right: 50px; }
     .close-btn { float: right; font-size: 24px; cursor: pointer; color: #0a0; }
 
     /* Console */
@@ -127,8 +128,8 @@
     .console-input { width: 100%; background: #000; color: var(--text); border: none; outline: none; }
 
     /* Stealth */
-    .stealth .input-bar, .stealth .favorites, .stealth .game-grid, .stealth .info, .stealth .header { display: none !important; }
-    .stealth .viewer { height: calc(100vh - 100px); }
+    .stealth .input-bar, .stealth .favorites, .stealth .game-grid, .stealth .info, .stealth .header, .stealth .visualizer { display: none !important; }
+    .stealth .viewer { height: 100vh; border: none; }
     .stealth .control-bar { top: 8px; padding: 4px; font-size: 0.7rem; }
     .stealth #unhideBtn { display: block !important; }
 
@@ -140,11 +141,11 @@
     }
   </style>
 </head>
-<body class="crt">
+<body class="crt" data-theme="hacker">
   <!-- Boot -->
   <div id="bootScreen">
-    <div class="glow">NEXUS-7 v6.0</div>
-    <div>INITIALIZING...</div>
+    <div class="glow">NEXUS-7 v6.5</div>
+    <div>BOOTING...</div>
     <div class="scanline"></div>
   </div>
 
@@ -176,7 +177,7 @@
 
   <div class="wrapper" id="mainUI" style="display:none;">
     <div class="container">
-      <div class="header">NEXUS-7 // v6.0</div>
+      <div class="header">NEXUS-7 // v6.5</div>
       
       <div class="input-bar">
         <input type="text" id="urlInput" placeholder="> TARGET: " />
@@ -189,11 +190,10 @@
 
       <iframe id="siteFrame" class="viewer"></iframe>
 
-      <!-- Audio Visualizer -->
       <div class="visualizer" id="visualizer"></div>
 
       <div class="info">
-        DOUBLE-CLICK = FS • ALL CONTROLS IN TOP BAR
+        DRAG PANELS • THEME CYCLES • STEALTH = FULL HIDE
       </div>
     </div>
   </div>
@@ -204,18 +204,19 @@
     <input type="text" class="console-input" id="consoleInput" placeholder="> " />
   </div>
 
-  <!-- Panels -->
-  <div class="panel commands-panel" id="commands">
+  <!-- Draggable CMD Panel -->
+  <div class="panel commands-panel" id="commands" style="display:none;">
+    <div class="panel-header" onmousedown="dragStart(event, this.parentElement)">COMMANDS</div>
     <div class="close-btn" onclick="toggleCommands()">X</div>
-    <h3>COMMANDS</h3>
-    <div style="margin:10px 0; padding:8px; border:1px dashed #0a0; border-radius:4px; cursor:pointer;" onclick="executeCmd('clear')"><span style="color:#0f0">clear</span></div>
-    <div style="margin:10px 0; padding:8px; border:1px dashed #0a0; border-radius:4px; cursor:pointer;" onclick="executeCmd('proxy')"><span style="color:#0f0">proxy</span></div>
-    <div style="margin:10px 0; padding:8px; border:1px dashed #0a0; border-radius:4px; cursor:pointer;" onclick="executeCmd('stealth')"><span style="color:#0f0">stealth</span></div>
+    <div style="margin:10px 0; padding:8px; border:1px dashed #0a0; border-radius:4px; cursor:pointer;" onclick="executeCmd('clear')"><span style="color:var(--accent)">clear</span></div>
+    <div style="margin:10px 0; padding:8px; border:1px dashed #0a0; border-radius:4px; cursor:pointer;" onclick="executeCmd('proxy')"><span style="color:var(--accent)">proxy</span></div>
+    <div style="margin:10px 0; padding:8px; border:1px dashed #0a0; border-radius:4px; cursor:pointer;" onclick="executeCmd('stealth')"><span style="color:var(--accent)">stealth</span></div>
   </div>
 
-  <div class="panel settings-panel" id="settings">
+  <!-- Draggable Settings Panel -->
+  <div class="panel settings-panel" id="settings" style="display:none;">
+    <div class="panel-header" onmousedown="dragStart(event, this.parentElement)">SETTINGS</div>
     <div class="close-btn" onclick="toggleSettings()">X</div>
-    <h3>CONFIG</h3>
     <label><input type="checkbox" id="autoFull"> Auto FS</label><br><br>
     <label><input type="checkbox" id="scanlines" onchange="toggleScanlines()" checked> Scanlines</label><br><br>
     <label><input type="checkbox" id="visualizerOn" onchange="toggleVisualizer()" checked> Visualizer</label><br><br>
@@ -238,16 +239,43 @@
     const proxies = ['https://api.codetabs.com/v1/proxy?quest=', 'https://api.allorigins.win/raw?url=', 'https://thingproxy.freeboard.io/fetch/'];
     let soundEnabled = false;
     let favorites = JSON.parse(localStorage.getItem('nexusFavs') || '[]');
+    let currentTheme = 'hacker';
 
-    // Audio Visualizer
+    // DRAG PANELS
+    function dragStart(e, panel) {
+      if (e.target !== e.currentTarget) return;
+      let shiftX = e.clientX - panel.getBoundingClientRect().left;
+      let shiftY = e.clientY - panel.getBoundingClientRect().top;
+
+      function move(e) {
+        panel.style.left = (e.clientX - shiftX) + 'px';
+        panel.style.top = (e.clientY - shiftY) + 'px';
+        panel.style.right = 'auto';
+      }
+
+      document.addEventListener('mousemove', move);
+      document.addEventListener('mouseup', () => {
+        document.removeEventListener('mousemove', move);
+      }, { once: true });
+    }
+
+    // THEME CYCLE
+    function cycleTheme() {
+      const themes = ['hacker', 'matrix', 'retro'];
+      const idx = themes.indexOf(currentTheme);
+      currentTheme = themes[(idx + 1) % themes.length];
+      document.body.setAttribute('data-theme', currentTheme);
+      log(`THEME: ${currentTheme.toUpperCase()}`);
+      beep(1000, 100);
+    }
+
+    // Visualizer
     function initVisualizer() {
-      if (!visualizerOn) return;
+      if (!document.getElementById('visualizerOn').checked) return;
       audioCtx = new (window.AudioContext || window.webkitAudioContext)();
       analyser = audioCtx.createAnalyser();
       analyser.fftSize = 64;
       dataArray = new Uint8Array(analyser.frequencyBinCount);
-
-      // Create bars
       for (let i = 0; i < 32; i++) {
         const bar = document.createElement('div');
         bar.className = 'bar';
@@ -256,17 +284,14 @@
         bars.push(bar);
       }
     }
-
     function updateVisualizer() {
-      if (!visualizerOn || !analyser) return requestAnimationFrame(updateVisualizer);
+      if (!document.getElementById('visualizerOn').checked || !analyser) return requestAnimationFrame(updateVisualizer);
       analyser.getByteFrequencyData(dataArray);
       bars.forEach((bar, i) => {
-        const value = dataArray[i] || 0;
-        bar.style.height = (value / 255 * 60) + 'px';
+        bar.style.height = (dataArray[i] / 255 * 60) + 'px';
       });
       requestAnimationFrame(updateVisualizer);
     }
-
     function toggleVisualizer() {
       const on = document.getElementById('visualizerOn').checked;
       visualizer.style.display = on ? 'flex' : 'none';
@@ -296,7 +321,7 @@
       beep(800, 80);
     }
 
-    // Boot → Password
+    // Boot
     setTimeout(() => {
       document.getElementById('bootScreen').style.display = 'none';
       overlay.style.display = 'flex';
@@ -319,16 +344,8 @@
     }
 
     // Fullscreen
-    function enterFullscreen() {
-      frame.classList.add('fs');
-      frame.requestFullscreen().catch(() => {});
-      beep(1000, 150);
-    }
-    function exitFullscreen() {
-      if (document.fullscreenElement) document.exitFullscreen();
-      frame.classList.remove('fs');
-      beep(600, 100);
-    }
+    function enterFullscreen() { frame.classList.add('fs'); frame.requestFullscreen(); beep(1000, 150); }
+    function exitFullscreen() { if (document.fullscreenElement) document.exitFullscreen(); frame.classList.remove('fs'); beep(600, 100); }
 
     // Stealth
     function toggleStealth() {
@@ -431,8 +448,8 @@
     });
 
     // Panels
-    function toggleCommands() { document.getElementById('commands').classList.toggle('open'); }
-    function toggleSettings() { document.getElementById('settings').classList.toggle('open'); }
+    function toggleCommands() { document.getElementById('commands').style.display = document.getElementById('commands').style.display === 'block' ? 'none' : 'block'; }
+    function toggleSettings() { document.getElementById('settings').style.display = document.getElementById('settings').style.display === 'block' ? 'none' : 'block'; }
 
     function clearConsole() { consoleOutput.innerHTML = ''; log('CLEARED'); }
 
