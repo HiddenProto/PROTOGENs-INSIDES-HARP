@@ -12,6 +12,13 @@
       --card: #111;
       --border: #0f0;
       --error: #f55;
+      --glow: 0 0 10px rgba(0,255,0,0.6);
+    }
+    [data-theme="light"] {
+      --bg: #111;
+      --text: #0f0;
+      --card: #222;
+      --border: #0f0;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -22,21 +29,23 @@
       line-height: 1.6;
       transition: all 0.3s;
       padding: 12px;
-      overflow-x: hidden;
+      overflow: hidden;
       position: relative;
     }
-    /* Scanline Effect */
-    body::before {
+    /* CRT Effects */
+    .crt::before {
       content: '';
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
       background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px);
       pointer-events: none;
       z-index: 9999;
-      opacity: 0.3;
-      animation: scan 8s linear infinite;
+      opacity: 0;
+      transition: opacity 0.5s;
     }
+    .crt.active::before { opacity: 0.3; animation: scan 10s linear infinite; }
     @keyframes scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
+    .glow { text-shadow: var(--glow); }
 
     .container {
       max-width: 960px;
@@ -45,37 +54,36 @@
       border: 1px solid var(--border);
       border-radius: 8px;
       overflow: hidden;
-      box-shadow: 0 0 20px rgba(0,255,0,0.3);
+      box-shadow: var(--glow);
+      position: relative;
+      z-index: 1;
     }
     .header {
-      padding: 16px;
+      padding: 14px;
       background: #000;
       color: var(--text);
       text-align: center;
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       border-bottom: 1px solid var(--border);
-      text-shadow: 0 0 5px var(--accent);
     }
     .input-bar {
-      padding: 16px;
+      padding: 12px;
       display: flex;
-      gap: 10px;
-      align-items: center;
+      gap: 8px;
       background: #000;
     }
     input {
       flex: 1;
-      padding: 12px;
-      font-size: 1rem;
+      padding: 10px;
       background: #000;
       color: var(--text);
       border: 1px solid var(--border);
       border-radius: 4px;
-      font-family: 'Courier New', monospace;
+      font-family: inherit;
     }
     input::placeholder { color: #0a0; }
     button {
-      padding: 12px 18px;
+      padding: 10px 16px;
       background: transparent;
       color: var(--text);
       border: 1px solid var(--border);
@@ -84,104 +92,113 @@
       font-weight: bold;
       transition: 0.3s;
     }
-    button:hover {
-      background: var(--accent);
-      color: #000;
-      box-shadow: 0 0 10px var(--accent);
-    }
+    button:hover { background: var(--accent); color: #000; box-shadow: var(--glow); }
+
     .viewer {
       width: 100%;
-      height: 620px;
+      height: 580px;
       border: 1px solid var(--border);
       border-top: none;
       transition: all 0.3s;
     }
     .info {
-      padding: 10px;
-      font-size: 0.8rem;
+      padding: 8px;
+      font-size: 0.75rem;
       color: #0a0;
       text-align: center;
       background: #000;
       border-top: 1px solid var(--border);
     }
 
-    /* Presets */
-    .presets {
-      padding: 8px 16px;
-      display: flex;
-      gap: 6px;
-      flex-wrap: wrap;
+    /* Game Grid */
+    .game-grid {
+      padding: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      gap: 8px;
       background: #000;
+      max-height: 200px;
+      overflow-y: auto;
     }
-    .preset-btn {
-      padding: 6px 10px;
+    .game-btn {
+      padding: 8px;
       background: transparent;
       color: #0a0;
-      border: 1px solid #0a0;
+      border: 1px dashed #0a0;
       border-radius: 4px;
-      font-size: 0.8rem;
+      font-size: 0.7rem;
+      text-align: center;
       cursor: pointer;
+      transition: 0.2s;
     }
-    .preset-btn:hover { background: #0a0; color: #000; }
+    .game-btn:hover { border: 1px solid var(--accent); color: var(--accent); }
 
-    /* Settings */
-    .settings-btn {
-      position: fixed; right: 16px; top: 16px;
-      background: transparent; color: var(--text);
-      width: 44px; height: 44px; border-radius: 50%;
-      font-size: 24px; cursor: pointer;
-      border: 1px solid var(--border);
-      display: flex; align-items: center; justify-content: center; z-index: 1000;
-      box-shadow: 0 0 10px rgba(0,255,0,0.5);
-    }
-    .settings-panel {
-      position: fixed; right: -300px; top: 0; width: 300px; height: 100%;
-      background: #000; color: var(--text);
-      padding: 20px; transition: right 0.4s;
-      z-index: 999; border-left: 1px solid var(--border);
-      box-shadow: -5px 0 20px rgba(0,255,0,0.3);
-    }
-    .settings-panel.open { right: 0; }
-    .close-btn { float: right; font-size: 24px; cursor: pointer; color: #0a0; }
-    .setting { margin: 16px 0; }
-    label { display: flex; align-items: center; gap: 10px; font-size: 0.9rem; cursor: pointer; }
-
-    /* Debug Panel */
-    .debug-panel {
+    /* Console */
+    .console {
       position: fixed; bottom: 0; left: 0; width: 100%;
-      background: rgba(0,0,0,0.9); color: #0f0;
+      background: rgba(0,0,0,0.95); color: var(--text);
       padding: 10px; font-size: 0.8rem;
       border-top: 1px solid var(--border);
-      z-index: 1000; display: none;
-      max-height: 200px; overflow-y: auto;
-      font-family: 'Courier New', monospace;
+      z-index: 1000; display: none; max-height: 300px; overflow-y: auto;
+      font-family: inherit;
     }
-    .debug-panel.open { display: block; }
-    .debug-log { margin: 4px 0; }
-    .error { color: var(--error); }
+    .console.open { display: block; }
+    .console-input {
+      width: 100%; background: #000; color: var(--text); border: none; outline: none; font-family: inherit;
+    }
+    .log { margin: 2px 0; }
 
-    /* Stealth Mode */
-    .stealth .input-bar, .stealth .presets, .stealth .info, .stealth .header { display: none !important; }
+    /* Settings */
+    .settings-btn { position: fixed; right: 16px; top: 16px; background: transparent; color: var(--text); width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; z-index: 1000; box-shadow: var(--glow); }
+    .settings-panel { position: fixed; right: -300px; top: 0; width: 300px; height: 100%; background: #000; color: var(--text); padding: 20px; transition: right 0.4s; z-index: 999; border-left: 1px solid var(--border); box-shadow: -5px 0 20px rgba(0,255,0,0.3); }
+    .settings-panel.open { right: 0; }
+    .close-btn { float: right; font-size: 24px; cursor: pointer; color: #0a0; }
+
+    /* Commands Pop-Out */
+    .commands-btn { position: fixed; left: 16px; top: 16px; background: transparent; color: var(--text); width: 40px; height: 40px; border-radius: 50%; font-size: 20px; cursor: pointer; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; z-index: 1000; box-shadow: var(--glow); }
+    .commands-panel { position: fixed; left: -300px; top: 0; width: 300px; height: 100%; background: #000; color: var(--text); padding: 20px; transition: left 0.4s; z-index: 999; border-right: 1px solid var(--border); box-shadow: 5px 0 20px rgba(0,255,0,0.3); }
+    .commands-panel.open { left: 0; }
+    .command-item { margin: 10px 0; cursor: pointer; padding: 8px; border: 1px dashed #0a0; border-radius: 4px; transition: 0.2s; }
+    .command-item:hover { border: 1px solid var(--accent); background: #111; }
+    .command-item .cmd { color: var(--accent); font-weight: bold; }
+
+    /* Password Overlay */
+    #passwordOverlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: #000; color: var(--text); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 99999;
+      font-size: 1.2rem; text-align: center;
+    }
+    #passwordInput { margin: 20px; padding: 12px; width: 200px; background: #111; color: var(--text); border: 1px solid var(--border); }
+
+    /* Stealth */
+    .stealth .input-bar, .stealth .presets, .stealth .info, .stealth .header, .stealth .game-grid { display: none !important; }
     .stealth .viewer { border: none; height: 100vh; border-radius: 0; }
   </style>
 </head>
-<body>
-  <div class="settings-btn" onclick="toggleSettings()">Gear</div>
+<body class="crt">
+  <!-- Password Lock -->
+  <div id="passwordOverlay">
+    <div class="glow">NEXUS-7 ACCESS TERMINAL</div>
+    <input type="password" id="passwordInput" placeholder="ENTER PASSPHRASE" />
+    <button onclick="checkPassword()">AUTHENTICATE</button>
+    <div style="margin-top:20px; font-size:0.8rem; color:#0a0;">PASSPHRASE: nexus7</div>
+  </div>
 
-  <div class="container">
-    <div class="header">NEXUS-7 // SYSTEM ONLINE</div>
+  <div class="commands-btn" onclick="toggleCommands()" style="display:none;">CMD</div>
+  <div class="settings-btn" onclick="toggleSettings()" style="display:none;">⚙</div>
+
+  <div class="container" style="display:none;" id="mainUI">
+    <div class="header">NEXUS-7 // v4.5 HACKER TERMINAL</div>
     
     <div class="input-bar">
-      <input type="text" id="urlInput" placeholder="> TARGET: " />
+      <input type="text" id="urlInput" placeholder="> TARGET URL: " />
       <button onclick="loadSite()">EXECUTE</button>
-      <button onclick="openInTab()" style="background:transparent; border:1px solid #0f0;">NEW TAB</button>
+      <button onclick="openInTab()">TAB</button>
+      <button onclick="toggleProxy()">PROXY ROTATE</button>
     </div>
 
-    <div class="presets">
-      <div class="preset-btn" onclick="loadPreset('coolmathgames.com')">CMATH</div>
-      <div class="preset-btn" onclick="loadPreset('poki.com')">POKI</div>
-      <div class="preset-btn" onclick="loadPreset('krunker.io')">KRUNK</div>
-      <div class="preset-btn" onclick="loadPreset('wikipedia.org')">WIKI</div>
+    <div class="game-grid" id="gameGrid">
+      <!-- Games populated by JS -->
     </div>
 
     <iframe id="siteFrame" class="viewer"
@@ -191,166 +208,285 @@
     </iframe>
 
     <div class="info">
-      DBLCLICK = FULLSCREEN • ESC = EXIT • CTRL+SHIFT+D = DEBUG
+      DBLCLICK=FS | ESC=EXIT | CTRL+SHIFT+C=CONSOLE | F1=HELP | F11=TRUE FS
     </div>
   </div>
 
-  <!-- Settings Panel -->
+  <!-- Commands Pop-Out -->
+  <div class="commands-panel" id="commands">
+    <div class="close-btn" onclick="toggleCommands()">X</div>
+    <h3>COMMAND LIBRARY</h3>
+    <div class="command-item" onclick="executeCommandFromPanel('clear')"><span class="cmd">clear</span> - Clear console</div>
+    <div class="command-item" onclick="executeCommandFromPanel('help')"><span class="cmd">help</span> - Show commands</div>
+    <div class="command-item" onclick="executeCommandFromPanel('proxy')"><span class="cmd">proxy</span> - Toggle proxy</div>
+    <div class="command-item" onclick="executeCommandFromPanel('fs')"><span class="cmd">fs</span> - Fullscreen</div>
+    <div class="command-item" onclick="executeCommandFromPanel('stealth')"><span class="cmd">stealth</span> - Hide UI</div>
+    <div class="command-item" onclick="executeCommandFromPanel('games')"><span class="cmd">games</span> - Scroll to games</div>
+    <div class="command-item" onclick="executeCommandFromPanel('favorites')"><span class="cmd">favorites</span> - Load saved URLs</div>
+    <div class="command-item" onclick="executeCommandFromPanel('theme matrix')"><span class="cmd">theme matrix</span> - Matrix theme</div>
+  </div>
+
+  <!-- Settings -->
   <div class="settings-panel" id="settings">
     <div class="close-btn" onclick="toggleSettings()">X</div>
     <h3>SYSTEM CONFIG</h3>
     <div class="setting">
-      <label><input type="checkbox" id="rainbowMode" onchange="toggleRainbow()"> SCANLINES</label>
+      <label><input type="checkbox" id="rainbowMode" onchange="toggleRainbow()"> Rainbow Mode</label>
     </div>
     <div class="setting">
-      <label><input type="checkbox" id="darkMode" onchange="toggleDark()"> NIGHT MODE (ON)</label>
+      <label><input type="checkbox" id="scanlines" onchange="toggleScanlines()" checked> Scanlines</label>
     </div>
     <div class="setting">
-      <label><input type="checkbox" id="borderless" onchange="toggleBorder()"> BORDER OFF</label>
+      <label><input type="checkbox" id="darkMode" onchange="toggleDark()" checked> Dark Mode</label>
     </div>
     <div class="setting">
-      <label><input type="checkbox" id="autoFull" onchange="toggleAutoFull()"> AUTO-FS</label>
+      <label><input type="checkbox" id="autoFull" onchange="toggleAutoFull()"> Auto Fullscreen</label>
+    </div>
+    <div class="setting">
+      <label><input type="checkbox" id="proxyMode" onchange="toggleProxyMode()"> Proxy Enabled</label>
+    </div>
+    <div class="setting">
+      <label><input type="checkbox" id="soundMode" onchange="toggleSound()"> Sound Effects</label>
     </div>
   </div>
 
-  <!-- Debug Panel -->
-  <div class="debug-panel" id="debugPanel">
-    <div style="margin-bottom:8px; color:#0f0;">NEXUS-7 DEBUG LOG // <span id="status">IDLE</span></div>
-    <div id="logContainer"></div>
+  <!-- Console -->
+  <div class="console" id="console">
+    <div id="consoleOutput"></div>
+    <input type="text" class="console-input" id="consoleInput" placeholder="> ENTER COMMAND: " />
   </div>
 
   <script>
     const frame = document.getElementById('siteFrame');
-    const body = document.body;
     const input = document.getElementById('urlInput');
-    const debugPanel = document.getElementById('debugPanel');
-    const logContainer = document.getElementById('logContainer');
-    const status = document.getElementById('status');
-    let history = JSON.parse(localStorage.getItem('nexusHistory') || '[]');
+    const consoleOutput = document.getElementById('consoleOutput');
+    const consoleInput = document.getElementById('consoleInput');
+    const mainUI = document.getElementById('mainUI');
+    const overlay = document.getElementById('passwordOverlay');
+    let proxyIndex = 0;
+    const proxies = ['https://api.codetabs.com/v1/proxy?quest=', 'https://api.allorigins.win/raw?url=', 'https://thingproxy.freeboard.io/fetch/'];
+    let useProxy = false;
+    let soundEnabled = false;
+    let favorites = JSON.parse(localStorage.getItem('nexusFavorites') || '[]');
 
-    // Log Function
-    function log(msg, type = 'info') {
-      const div = document.createElement('div');
-      div.className = `debug-log ${type}`;
-      div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
-      logContainer.appendChild(div);
-      logContainer.scrollTop = logContainer.scrollHeight;
-      if (logContainer.children.length > 50) logContainer.removeChild(logContainer.children[0]);
+    // Beep Sound (Random)
+    function beep(frequency = 440, duration = 200) {
+      if (!soundEnabled) return;
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioCtx.createOscillator();
+      const gainNode = audioCtx.createGain();
+      oscillator.connect(gainNode);
+      gainNode.connect(audioCtx.destination);
+      oscillator.frequency.value = frequency;
+      gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration / 1000);
+      oscillator.start(audioCtx.currentTime);
+      oscillator.stop(audioCtx.currentTime + duration / 1000);
     }
 
+    // Log
+    function log(msg, type = 'info') {
+      const div = document.createElement('div');
+      div.className = `log ${type}`;
+      div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+      consoleOutput.appendChild(div);
+      consoleOutput.scrollTop = consoleOutput.scrollHeight;
+      beep(800 + Math.random() * 200, 100);
+    }
+
+    // Password
+    function checkPassword() {
+      if (document.getElementById('passwordInput').value === 'nexus7') {
+        overlay.style.display = 'none';
+        mainUI.style.display = 'block';
+        document.querySelector('.settings-btn').style.display = 'flex';
+        document.querySelector('.commands-btn').style.display = 'flex';
+        log('AUTHENTICATED: NEXUS-7 ONLINE');
+        initGames();
+        toggleDark(); // Default dark
+        toggleScanlines();
+      } else {
+        log('AUTH FAILED: TRY AGAIN', 'error');
+        beep(200, 300);
+      }
+    }
+
+    // Console Commands
+    consoleInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') {
+        const cmd = consoleInput.value.trim();
+        log(`> ${cmd}`);
+        executeCommand(cmd.toLowerCase());
+        consoleInput.value = '';
+      }
+    });
+
+    function executeCommand(cmd) {
+      const [command, ...args] = cmd.split(' ');
+      switch (command) {
+        case 'clear': consoleOutput.innerHTML = ''; log('CONSOLE CLEARED'); break;
+        case 'help': log('COMMANDS: clear, help, proxy, fs, stealth, games, favorites, theme [hacker/matrix/retro]'); break;
+        case 'proxy': toggleProxyMode(); break;
+        case 'fs': frame.requestFullscreen(); beep(1000, 150); break;
+        case 'stealth': document.body.classList.toggle('stealth'); log('STEALTH ' + (document.body.classList.contains('stealth') ? 'ENGAGED' : 'DISENGAGED')); break;
+        case 'games': document.getElementById('gameGrid').scrollIntoView(); break;
+        case 'favorites': loadFavorites(); break;
+        case 'theme':
+          if (args[0] === 'hacker') { /* Default */ }
+          else if (args[0] === 'matrix') { document.body.style.setProperty('--text', '#00ff00'); document.body.style.setProperty('--bg', '#000'); }
+          else if (args[0] === 'retro') { document.body.style.setProperty('--text', '#ff0'); document.body.style.setProperty('--bg', '#001'); }
+          log(`THEME: ${args[0].toUpperCase()}`); break;
+        default: log('UNKNOWN: TYPE "help"', 'error');
+      }
+    }
+
+    function executeCommandFromPanel(cmd) {
+      executeCommand(cmd);
+      toggleCommands(); // Close panel
+      beep(600, 100);
+    }
+
+    // Panels
+    function toggleCommands() {
+      document.getElementById('commands').classList.toggle('open');
+    }
+    function toggleSettings() {
+      document.getElementById('settings').classList.toggle('open');
+    }
+
+    // Load Site
     function loadSite() {
       let url = input.value.trim();
-      if (!url) return log('NO TARGET', 'error');
+      if (!url) return log('ERROR: NO TARGET URL');
       if (!url.startsWith('http')) url = 'https://' + url;
-      
-      const start = performance.now();
-      status.textContent = 'LOADING...';
-      log(`EXECUTE: ${url}`);
-      
-      frame.src = url;
-      
-      frame.onload = () => {
-        const loadTime = ((performance.now() - start) / 1000).toFixed(2);
-        status.textContent = 'ONLINE';
-        log(`LOADED in ${loadTime}s`, 'success');
-        addToHistory(url);
-      };
-      
-      frame.onerror = () => {
-        status.textContent = 'ERROR';
-        log(`FAILED: ${url}`, 'error');
-      };
-      
+      if (useProxy) url = proxies[proxyIndex] + encodeURIComponent(url);
+
+      log(`EXECUTING: ${url}`);
       if (document.getElementById('autoFull').checked) {
-        setTimeout(() => frame.requestFullscreen(), 1000);
+        document.documentElement.requestFullscreen().then(() => {
+          setTimeout(() => {
+            frame.src = url;
+            beep(1200, 200);
+          }, 500);
+        }).catch(err => log(`FS ERROR: ${err.message}`, 'error'));
+      } else {
+        frame.src = url;
+        beep(1000, 150);
       }
     }
 
     function openInTab() {
       let url = input.value.trim();
-      if (!url) return log('NO TARGET', 'error');
+      if (!url) return log('ERROR: NO TARGET');
       if (!url.startsWith('http')) url = 'https://' + url;
-      window.open(url, '_blank');
-      log(`OPEN TAB: ${url}`);
+      window.open(useProxy ? proxies[proxyIndex] + encodeURIComponent(url) : url, '_blank');
+      log(`TAB OPENED: ${url}`);
     }
 
-    function loadPreset(site) {
-      input.value = site;
-      loadSite();
-    }
-
-    function addToHistory(url) {
-      if (!history.includes(url)) {
-        history.unshift(url);
-        if (history.length > 5) history.pop();
-        localStorage.setItem('nexusHistory', JSON.stringify(history));
-      }
-    }
-
-    // Enter key
-    input.addEventListener('keypress', e => {
-      if (e.key === 'Enter') loadSite();
-    });
-
-    // Fullscreen
-    frame.addEventListener('dblclick', () => frame.requestFullscreen());
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape' && document.fullscreenElement) document.exitFullscreen();
-    });
-
-    // Settings
-    function toggleSettings() {
-      document.getElementById('settings').classList.toggle('open');
-    }
-
+    // Toggles
     function toggleRainbow() {
       const enabled = document.getElementById('rainbowMode').checked;
-      body.style.background = enabled ? 'linear-gradient(45deg, #000, #111)' : '#000';
-      body.style.backgroundSize = enabled ? '400% 400%' : '';
-      if (enabled) body.style.animation = 'rainbow 20s ease infinite';
-      else body.style.animation = '';
+      const isLight = document.body.getAttribute('data-theme') === 'light';
+      if (enabled) {
+        document.body.style.background = isLight ? 'linear-gradient(90deg, #ff6b6b, #feca57, #48dbfb)' : 'linear-gradient(90deg, #c44569, #b8860b, #2d98da)';
+        document.body.style.backgroundSize = '300% 300%';
+        document.body.style.animation = 'rainbow 12s ease infinite';
+      } else {
+        document.body.style.background = 'var(--bg)';
+        document.body.style.animation = '';
+      }
+      log(`RAINBOW: ${enabled ? 'ENGAGED' : 'OFF'}`);
+    }
+
+    function toggleScanlines() {
+      const enabled = document.getElementById('scanlines').checked;
+      document.body.classList.toggle('active', enabled);
+      log(`SCANLINES: ${enabled ? 'ON' : 'OFF'}`);
     }
 
     function toggleDark() {
       const enabled = document.getElementById('darkMode').checked;
-      body.setAttribute('data-theme', enabled ? 'dark' : '');
+      document.body.setAttribute('data-theme', enabled ? '' : 'light');
+      toggleRainbow(); // Re-apply if on
       localStorage.setItem('darkMode', enabled);
+      log(`DARK MODE: ${enabled ? 'ON' : 'OFF'}`);
     }
 
-    function toggleBorder() {
-      frame.style.border = document.getElementById('borderless').checked ? 'none' : '';
+    function toggleAutoFull() {
+      log(`AUTO-FS: ${document.getElementById('autoFull').checked ? 'ON' : 'OFF'}`);
     }
 
-    function toggleAutoFull() {}
+    function toggleProxyMode() {
+      useProxy = !useProxy;
+      log(`PROXY MODE: ${useProxy ? 'ENGAGED' : 'DISENGAGED'}`);
+    }
 
-    // Keyboard Shortcuts
+    function toggleProxy() {
+      proxyIndex = (proxyIndex + 1) % proxies.length;
+      log(`PROXY ROTATED: ${proxyIndex + 1}/${proxies.length} (${proxies[proxyIndex].split('/')[2]})`);
+    }
+
+    function toggleSound() {
+      soundEnabled = document.getElementById('soundMode').checked;
+      log(`SOUND FX: ${soundEnabled ? 'ON' : 'OFF'}`);
+    }
+
+    function loadFavorites() {
+      if (favorites.length === 0) return log('NO FAVORITES SAVED');
+      favorites.forEach(fav => log(`FAV: ${fav}`));
+      input.value = favorites[0]; // Load first
+    }
+
+    // Game Grid
+    const games = [
+      {name: 'Slope', url: 'https://slope-game.github.io/'},
+      {name: '1v1.LOL', url: 'https://1v1.lol/'},
+      {name: 'Krunker', url: 'https://krunker.io/'},
+      {name: 'Shell Shockers', url: 'https://shellshockers.io/'},
+      {name: 'Basket Random', url: 'https://basketrandom.com/'},
+      {name: 'Retro Bowl', url: 'https://retro-bowl.github.io/'},
+      {name: 'Run 3', url: 'https://run3.pro/'},
+      {name: 'Moto X3M', url: 'https://motox3m.io/'},
+      {name: 'Fireboy Watergirl', url: 'https://fireboy-watergirl.github.io/'},
+      {name: '2048', url: 'https://play2048.co/'},
+      // Add more as needed
+    ];
+    function initGames() {
+      const grid = document.getElementById('gameGrid');
+      games.forEach(g => {
+        const btn = document.createElement('div');
+        btn.className = 'game-btn';
+        btn.textContent = g.name;
+        btn.onclick = () => { input.value = g.url; loadSite(); beep(700, 100); };
+        grid.appendChild(btn);
+      });
+    }
+
+    // Keyboard
     document.addEventListener('keydown', e => {
       if (e.ctrlKey && e.shiftKey) {
-        if (e.key === 'D') {
-          debugPanel.classList.toggle('open');
-          log('DEBUG PANEL TOGGLED');
+        if (e.key === 'C') {
+          document.getElementById('console').classList.toggle('open');
+          beep(900, 100);
         }
         if (e.key === 'S') {
           document.body.classList.toggle('stealth');
-          log('STEALTH MODE: ' + (document.body.classList.contains('stealth') ? 'ON' : 'OFF'));
+          log('STEALTH TOGGLED');
+          beep(1100, 150);
         }
       }
-      if (e.key === 'F11') {
-        e.preventDefault();
-        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-        else document.exitFullscreen();
-      }
+      if (e.key === 'F1') { e.preventDefault(); executeCommand('help'); beep(500, 100); }
+      if (e.key === 'F11') { e.preventDefault(); document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen(); beep(1200, 200); }
     });
 
-    // Load settings
-    if (localStorage.getItem('darkMode') === 'true') {
-      document.getElementById('darkMode').checked = true;
-      toggleDark();
-    }
+    // Enter on URL input
+    input.addEventListener('keypress', e => {
+      if (e.key === 'Enter') loadSite();
+    });
 
     // Init
-    log('NEXUS-7 BOOTED');
-    status.textContent = 'READY';
+    document.getElementById('passwordInput').focus();
+    log('BOOT SEQUENCE INITIATED');
   </script>
 </body>
 </html>
