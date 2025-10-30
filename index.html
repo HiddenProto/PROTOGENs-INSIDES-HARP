@@ -13,7 +13,6 @@
       --border: #0f0;
       --error: #f55;
       --glow: 0 0 10px rgba(0,255,0,0.6);
-      --scale: 1;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
@@ -25,11 +24,10 @@
       padding: 12px;
       overflow: hidden;
       position: relative;
-      transform: scale(var(--scale));
-      transform-origin: top left;
+      min-height: 100vh;
     }
 
-    /* Boot Screen */
+    /* Boot */
     #bootScreen {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: #000; color: #0f0; display: flex; flex-direction: column;
@@ -39,7 +37,7 @@
     .scanline { height: 2px; background: #0f0; width: 0; animation: scanline 2s linear infinite; }
     @keyframes scanline { to { width: 100%; } }
 
-    /* CRT Scanlines */
+    /* Scanlines */
     .crt::before {
       content: ''; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       background: repeating-linear-gradient(0deg, rgba(0,0,0,0.15), rgba(0,0,0,0.15) 1px, transparent 1px, transparent 2px);
@@ -49,53 +47,69 @@
     @keyframes scan { 0% { transform: translateY(-100%); } 100% { transform: translateY(100%); } }
 
     .glow { text-shadow: var(--glow); }
-    .container {
-      max-width: 960px; margin: auto; background: var(--card); border: 1px solid var(--border);
-      border-radius: 8px; overflow: hidden; box-shadow: var(--glow); position: relative; z-index: 1;
+
+    /* Layout */
+    .wrapper {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
+    .container {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--glow);
+    }
+
     .header { padding: 14px; background: #000; color: var(--text); text-align: center; font-size: 1.3rem; border-bottom: 1px solid var(--border); }
 
-    .input-bar { padding: 12px; display: flex; gap: 8px; background: #000; }
-    input { flex: 1; padding: 10px; background: #000; color: var(--text); border: 1px solid var(--border); border-radius: 4px; font-family: inherit; }
+    .input-bar { padding: 12px; display: flex; gap: 8px; background: #000; flex-wrap: wrap; }
+    input { flex: 1; min-width: 200px; padding: 10px; background: #000; color: var(--text); border: 1px solid var(--border); border-radius: 4px; }
     input::placeholder { color: #0a0; }
-    button { padding: 8px 12px; background: transparent; color: var(--text); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 0.8rem; transition: 0.3s; }
+    button { padding: 8px 12px; background: transparent; color: var(--text); border: 1px solid var(--border); border-radius: 4px; cursor: pointer; font-size: 0.8rem; white-space: nowrap; }
     button:hover { background: var(--accent); color: #000; box-shadow: var(--glow); }
 
     .viewer {
       width: 100%; height: 580px; border: 1px solid var(--border); border-top: none;
-      transition: all 0.3s; position: relative;
+      transition: all 0.3s;
     }
     .viewer.fs { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 99999; border: none; border-radius: 0; }
 
     .info { padding: 8px; font-size: 0.75rem; color: #0a0; text-align: center; background: #000; border-top: 1px solid var(--border); }
 
-    /* Favorites */
-    .favorites { padding: 8px; display: flex; gap: 6px; flex-wrap: wrap; background: #000; }
-    .fav-btn { padding: 6px 10px; background: transparent; color: #0a0; border: 1px dashed #0a0; border-radius: 4px; font-size: 0.7rem; cursor: pointer; }
-    .fav-btn:hover { border: 1px solid var(--accent); color: var(--accent); }
+    /* Favorites & Games */
+    .favorites, .game-grid { padding: 8px; display: flex; gap: 6px; flex-wrap: wrap; background: #000; max-height: 120px; overflow-y: auto; }
+    .fav-btn, .game-btn { padding: 6px 10px; background: transparent; color: #0a0; border: 1px dashed #0a0; border-radius: 4px; font-size: 0.7rem; cursor: pointer; }
+    .fav-btn:hover, .game-btn:hover { border: 1px solid var(--accent); color: var(--accent); }
 
-    /* Game Grid */
-    .game-grid { padding: 10px; display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 8px; background: #000; max-height: 200px; overflow-y: auto; }
-    .game-btn { padding: 8px; background: transparent; color: #0a0; border: 1px dashed #0a0; border-radius: 4px; font-size: 0.7rem; text-align: center; cursor: pointer; }
-    .game-btn:hover { border: 1px solid var(--accent); color: var(--accent); }
-
-    /* Console */
-    .console {
-      position: fixed; bottom: 0; left: 0; width: 100%;
-      background: rgba(0,0,0,0.95); color: var(--text);
-      padding: 10px; font-size: 0.8rem;
-      border-top: 1px solid var(--border);
-      z-index: 1000; display: none; max-height: 300px; overflow-y: auto;
+    /* Audio Visualizer */
+    .visualizer {
+      height: 60px; background: #000; display: flex; align-items: end; gap: 2px; padding: 0 8px; border-top: 1px solid var(--border);
     }
-    .console.open { display: block; }
-    .console-input { width: 100%; background: #000; color: var(--text); border: none; outline: none; font-family: inherit; }
-    .log { margin: 2px 0; }
+    .bar { width: 4px; background: var(--accent); transition: height 0.05s; }
+
+    /* Control Bar (Persistent) */
+    .control-bar {
+      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
+      display: flex; gap: 8px; z-index: 1001; background: #000; padding: 6px; border: 1px solid var(--border); border-radius: 8px;
+      flex-wrap: wrap; justify-content: center;
+    }
+
+    /* UNHIDE Button */
+    #unhideBtn {
+      position: fixed; top: 16px; right: 16px; background: #f55; color: #000; width: 40px; height: 40px;
+      border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 99998; display: none; animation: pulse 2s infinite;
+    }
+    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
 
     /* Panels */
     .panel {
       position: fixed; width: 300px; height: 100%; background: #000; color: var(--text);
       padding: 20px; transition: all 0.4s; z-index: 999; border: 1px solid var(--border);
-      box-shadow: 0 0 20px rgba(0,255,0,0.3);
+      box-shadow: 0 0 20px rgba(0,255,0,0.3); overflow-y: auto;
     }
     .commands-panel { left: -300px; border-right: 1px solid var(--border); }
     .commands-panel.open { left: 0; }
@@ -103,11 +117,20 @@
     .settings-panel.open { right: 0; }
     .close-btn { float: right; font-size: 24px; cursor: pointer; color: #0a0; }
 
-    /* Control Bar */
-    .control-bar {
-      position: fixed; top: 16px; left: 50%; transform: translateX(-50%);
-      display: flex; gap: 8px; z-index: 1001; background: #000; padding: 6px; border: 1px solid var(--border); border-radius: 8px;
+    /* Console */
+    .console {
+      position: fixed; bottom: 0; left: 0; width: 100%; background: rgba(0,0,0,0.95); color: var(--text);
+      padding: 10px; font-size: 0.8rem; border-top: 1px solid var(--border);
+      z-index: 1000; display: none; max-height: 300px; overflow-y: auto;
     }
+    .console.open { display: block; }
+    .console-input { width: 100%; background: #000; color: var(--text); border: none; outline: none; }
+
+    /* Stealth */
+    .stealth .input-bar, .stealth .favorites, .stealth .game-grid, .stealth .info, .stealth .header { display: none !important; }
+    .stealth .viewer { height: calc(100vh - 100px); }
+    .stealth .control-bar { top: 8px; padding: 4px; font-size: 0.7rem; }
+    .stealth #unhideBtn { display: block !important; }
 
     /* Password */
     #passwordOverlay {
@@ -115,18 +138,13 @@
       background: #000; color: var(--text); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 99999;
       font-size: 1.2rem; text-align: center;
     }
-    #passwordInput { margin: 20px; padding: 12px; width: 200px; background: #111; color: var(--text); border: 1px solid var(--border); }
-
-    /* Stealth */
-    .stealth * { display: none !important; }
-    .stealth .viewer.fs { display: block !important; }
   </style>
 </head>
 <body class="crt">
   <!-- Boot -->
   <div id="bootScreen">
-    <div class="glow">NEXUS-7 v5.5</div>
-    <div>BOOTING...</div>
+    <div class="glow">NEXUS-7 v6.0</div>
+    <div>INITIALIZING...</div>
     <div class="scanline"></div>
   </div>
 
@@ -138,37 +156,45 @@
     <div style="font-size:0.8rem; color:#0a0; margin-top:10px;">nexus7</div>
   </div>
 
+  <!-- UNHIDE -->
+  <div id="unhideBtn" onclick="exitStealth()">Warning</div>
+
   <!-- Control Bar -->
   <div class="control-bar" id="controlBar" style="display:none;">
     <button onclick="enterFullscreen()">FS</button>
     <button onclick="exitFullscreen()">EXIT FS</button>
     <button onclick="toggleConsole()">CONSOLE</button>
     <button onclick="toggleCommands()">CMD</button>
+    <button onclick="toggleSettings()">SETTINGS</button>
     <button onclick="toggleStealth()">STEALTH</button>
     <button onclick="toggleProxy()">PROXY</button>
     <button onclick="toggleSound()">SOUND</button>
     <button onclick="cycleTheme()">THEME</button>
     <button onclick="saveFavorite()">SAVE</button>
     <button onclick="clearConsole()">CLEAR</button>
-    <button onclick="showHelp()">HELP</button>
   </div>
 
-  <div class="container" id="mainUI" style="display:none;">
-    <div class="header">NEXUS-7 // v5.5</div>
-    
-    <div class="input-bar">
-      <input type="text" id="urlInput" placeholder="> TARGET: " />
-      <button onclick="loadSite()">EXECUTE</button>
-      <button onclick="openInTab()">TAB</button>
-    </div>
+  <div class="wrapper" id="mainUI" style="display:none;">
+    <div class="container">
+      <div class="header">NEXUS-7 // v6.0</div>
+      
+      <div class="input-bar">
+        <input type="text" id="urlInput" placeholder="> TARGET: " />
+        <button onclick="loadSite()">EXECUTE</button>
+        <button onclick="openInTab()">TAB</button>
+      </div>
 
-    <div class="favorites" id="favoritesBar"></div>
-    <div class="game-grid" id="gameGrid"></div>
+      <div class="favorites" id="favoritesBar"></div>
+      <div class="game-grid" id="gameGrid"></div>
 
-    <iframe id="siteFrame" class="viewer"></iframe>
+      <iframe id="siteFrame" class="viewer"></iframe>
 
-    <div class="info">
-      DOUBLE-CLICK = FULLSCREEN IFRAME • ALL CONTROLS IN TOP BAR
+      <!-- Audio Visualizer -->
+      <div class="visualizer" id="visualizer"></div>
+
+      <div class="info">
+        DOUBLE-CLICK = FS • ALL CONTROLS IN TOP BAR
+      </div>
     </div>
   </div>
 
@@ -178,22 +204,22 @@
     <input type="text" class="console-input" id="consoleInput" placeholder="> " />
   </div>
 
-  <!-- Commands Panel -->
+  <!-- Panels -->
   <div class="panel commands-panel" id="commands">
     <div class="close-btn" onclick="toggleCommands()">X</div>
     <h3>COMMANDS</h3>
-    <div style="margin:10px 0; padding:8px; border:1px dashed #0a0; border-radius:4px; cursor:pointer;" onclick="executeCmd('clear')"><span style="color:#0f0">clear</span> - Clear console</div>
-    <div style="margin:10px 0; padding:8px; border:1px dashed #0a0; border-radius:4px; cursor:pointer;" onclick="executeCmd('proxy')"><span style="color:#0f0">proxy</span> - Toggle proxy</div>
-    <div style="margin:10px 0; padding:8px; border:1px dashed #0a0; border-radius:4px; cursor:pointer;" onclick="executeCmd('stealth')"><span style="color:#0f0">stealth</span> - Hide UI</div>
+    <div style="margin:10px 0; padding:8px; border:1px dashed #0a0; border-radius:4px; cursor:pointer;" onclick="executeCmd('clear')"><span style="color:#0f0">clear</span></div>
+    <div style="margin:10px 0; padding:8px; border:1px dashed #0a0; border-radius:4px; cursor:pointer;" onclick="executeCmd('proxy')"><span style="color:#0f0">proxy</span></div>
+    <div style="margin:10px 0; padding:8px; border:1px dashed #0a0; border-radius:4px; cursor:pointer;" onclick="executeCmd('stealth')"><span style="color:#0f0">stealth</span></div>
   </div>
 
-  <!-- Settings Panel -->
   <div class="panel settings-panel" id="settings">
     <div class="close-btn" onclick="toggleSettings()">X</div>
     <h3>CONFIG</h3>
-    <label><input type="checkbox" id="autoFull" onchange="log('AUTO-FS: ' + this.checked)"> Auto Fullscreen</label><br><br>
+    <label><input type="checkbox" id="autoFull"> Auto FS</label><br><br>
     <label><input type="checkbox" id="scanlines" onchange="toggleScanlines()" checked> Scanlines</label><br><br>
-    <label><input type="checkbox" id="soundMode" onchange="toggleSound()"> Sound Effects</label>
+    <label><input type="checkbox" id="visualizerOn" onchange="toggleVisualizer()" checked> Visualizer</label><br><br>
+    <label><input type="checkbox" id="soundMode" onchange="toggleSound()"> Sound</label>
   </div>
 
   <script>
@@ -204,12 +230,49 @@
     const mainUI = document.getElementById('mainUI');
     const overlay = document.getElementById('passwordOverlay');
     const controlBar = document.getElementById('controlBar');
+    const unhideBtn = document.getElementById('unhideBtn');
+    const visualizer = document.getElementById('visualizer');
+    let audioCtx, analyser, source, dataArray, bars = [];
     let useProxy = false;
     let proxyIndex = 0;
     const proxies = ['https://api.codetabs.com/v1/proxy?quest=', 'https://api.allorigins.win/raw?url=', 'https://thingproxy.freeboard.io/fetch/'];
     let soundEnabled = false;
     let favorites = JSON.parse(localStorage.getItem('nexusFavs') || '[]');
-    let currentTheme = 'hacker';
+
+    // Audio Visualizer
+    function initVisualizer() {
+      if (!visualizerOn) return;
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 64;
+      dataArray = new Uint8Array(analyser.frequencyBinCount);
+
+      // Create bars
+      for (let i = 0; i < 32; i++) {
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+        bar.style.height = '2px';
+        visualizer.appendChild(bar);
+        bars.push(bar);
+      }
+    }
+
+    function updateVisualizer() {
+      if (!visualizerOn || !analyser) return requestAnimationFrame(updateVisualizer);
+      analyser.getByteFrequencyData(dataArray);
+      bars.forEach((bar, i) => {
+        const value = dataArray[i] || 0;
+        bar.style.height = (value / 255 * 60) + 'px';
+      });
+      requestAnimationFrame(updateVisualizer);
+    }
+
+    function toggleVisualizer() {
+      const on = document.getElementById('visualizerOn').checked;
+      visualizer.style.display = on ? 'flex' : 'none';
+      if (on && !analyser) initVisualizer();
+      if (on) updateVisualizer();
+    }
 
     // Beep
     function beep(freq = 800, dur = 100) {
@@ -227,7 +290,6 @@
     // Log
     function log(msg, type = 'info') {
       const div = document.createElement('div');
-      div.className = `log ${type}`;
       div.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
       consoleOutput.appendChild(div);
       consoleOutput.scrollTop = consoleOutput.scrollHeight;
@@ -250,22 +312,34 @@
         initGames();
         loadFavorites();
         toggleScanlines();
+        toggleVisualizer();
       } else {
         log('ACCESS DENIED', 'error');
-        beep(200, 300);
       }
     }
 
-    // Fullscreen (iframe only)
+    // Fullscreen
     function enterFullscreen() {
       frame.classList.add('fs');
-      frame.requestFullscreen().catch(() => log('FS BLOCKED', 'error'));
+      frame.requestFullscreen().catch(() => {});
       beep(1000, 150);
     }
     function exitFullscreen() {
       if (document.fullscreenElement) document.exitFullscreen();
       frame.classList.remove('fs');
       beep(600, 100);
+    }
+
+    // Stealth
+    function toggleStealth() {
+      document.body.classList.toggle('stealth');
+      unhideBtn.style.display = document.body.classList.contains('stealth') ? 'block' : 'none';
+      log('STEALTH: ' + (document.body.classList.contains('stealth') ? 'ON' : 'OFF'));
+    }
+    function exitStealth() {
+      document.body.classList.remove('stealth');
+      unhideBtn.style.display = 'none';
+      log('UI RESTORED');
     }
 
     // Load Site
@@ -287,44 +361,11 @@
       log(`TAB: ${url}`);
     }
 
-    // Console
-    function toggleConsole() {
-      document.getElementById('console').classList.toggle('open');
-      beep(900, 100);
-    }
-    consoleInput.addEventListener('keypress', e => {
-      if (e.key === 'Enter') {
-        const cmd = consoleInput.value.trim();
-        log(`> ${cmd}`);
-        executeCmd(cmd);
-        consoleInput.value = '';
-      }
-    });
-
-    function executeCmd(cmd) {
-      if (cmd === 'clear') { consoleOutput.innerHTML = ''; log('CLEARED'); }
-      else if (cmd === 'proxy') { toggleProxy(); }
-      else if (cmd === 'stealth') { toggleStealth(); }
-      else log('UNKNOWN CMD');
-    }
-
-    // Panels
-    function toggleCommands() { document.getElementById('commands').classList.toggle('open'); beep(700, 80); }
-    function toggleSettings() { document.getElementById('settings').classList.toggle('open'); beep(700, 80); }
-
-    // Stealth
-    function toggleStealth() {
-      document.body.classList.toggle('stealth');
-      log('STEALTH: ' + (document.body.classList.contains('stealth') ? 'ON' : 'OFF'));
-      beep(1100, 150);
-    }
-
     // Proxy
     function toggleProxy() {
       proxyIndex = (proxyIndex + 1) % proxies.length;
       useProxy = true;
       log(`PROXY: ${proxyIndex + 1}`);
-      beep(1000, 100);
     }
 
     // Sound
@@ -333,30 +374,15 @@
       log(`SOUND: ${soundEnabled ? 'ON' : 'OFF'}`);
     }
 
-    // Theme
-    function cycleTheme() {
-      const themes = ['hacker', 'matrix', 'retro'];
-      const idx = themes.indexOf(currentTheme);
-      currentTheme = themes[(idx + 1) % themes.length];
-      applyTheme(currentTheme);
-      log(`THEME: ${currentTheme.toUpperCase()}`);
-    }
-    function applyTheme(theme) {
-      if (theme === 'matrix') { document.body.style.setProperty('--text', '#0f0'); document.body.style.background = '#000'; }
-      if (theme === 'retro') { document.body.style.setProperty('--text', '#ff0'); document.body.style.background = '#001'; }
-    }
-
     // Favorites
     function saveFavorite() {
       const url = input.value.trim();
-      if (!url) return;
-      if (!favorites.includes(url)) {
-        favorites.unshift(url);
-        if (favorites.length > 10) favorites.pop();
-        localStorage.setItem('nexusFavs', JSON.stringify(favorites));
-        loadFavorites();
-        log(`SAVED: ${url}`);
-      }
+      if (!url || favorites.includes(url)) return;
+      favorites.unshift(url);
+      if (favorites.length > 10) favorites.pop();
+      localStorage.setItem('nexusFavs', JSON.stringify(favorites));
+      loadFavorites();
+      log(`SAVED: ${url}`);
     }
     function loadFavorites() {
       const bar = document.getElementById('favoritesBar');
@@ -393,17 +419,24 @@
       document.body.classList.toggle('active', enabled);
     }
 
-    // Help
-    function showHelp() {
-      log('NEXUS-7 v5.5 | ALL BUTTONS | NO KEYBINDS');
-    }
+    // Console
+    function toggleConsole() { document.getElementById('console').classList.toggle('open'); }
+    consoleInput.addEventListener('keypress', e => {
+      if (e.key === 'Enter') {
+        const cmd = consoleInput.value.trim();
+        log(`> ${cmd}`);
+        if (cmd === 'clear') { consoleOutput.innerHTML = ''; }
+        consoleInput.value = '';
+      }
+    });
 
-    function clearConsole() {
-      consoleOutput.innerHTML = '';
-      log('CONSOLE CLEARED');
-    }
+    // Panels
+    function toggleCommands() { document.getElementById('commands').classList.toggle('open'); }
+    function toggleSettings() { document.getElementById('settings').classList.toggle('open'); }
 
-    // Double-click iframe
+    function clearConsole() { consoleOutput.innerHTML = ''; log('CLEARED'); }
+
+    // Double-click
     frame.addEventListener('dblclick', enterFullscreen);
 
     // Init
