@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>NEXUS-7 v8.0</title>
+  <title>NEXUS-7 v8.1</title>
   <style>
     :root {
       --bg: #000;
@@ -112,7 +112,7 @@
 <body data-theme="hacker">
   <!-- Boot -->
   <div id="bootScreen">
-    <div class="glow">NEXUS-7 v8.0</div>
+    <div class="glow">NEXUS-7 v8.1</div>
     <div>INITIALIZING...</div>
     <div class="scanline"></div>
   </div>
@@ -136,7 +136,7 @@
     <button onclick="togglePanel('commands')">CMD</button>
     <button onclick="togglePanel('settings')">SETTINGS</button>
     <button onclick="toggleStealth()">STEALTH</button>
-    <button onclick="cycleProxy()">PROXY</button>
+    <button onclick="cycleProxy()" id="proxyBtn">PROXY</button>
     <button onclick="toggleSound()" id="soundBtn">SOUND</button>
     <button onclick="cycleTheme()">THEME</button>
     <button onclick="saveFavorite()">SAVE</button>
@@ -146,7 +146,7 @@
 
   <div class="wrapper" id="mainUI" style="display:none;">
     <div class="container">
-      <div class="header">NEXUS-7 // v8.0</div>
+      <div class="header">NEXUS-7 // v8.1</div>
       
       <div class="input-bar">
         <input type="text" id="urlInput" placeholder="> TARGET: " />
@@ -160,7 +160,7 @@
       <iframe id="siteFrame" class="viewer"></iframe>
 
       <div class="info">
-        EVERY BUTTON WORKS • X CLOSES PANELS
+        GREEN = ACTIVE • X CLOSES • EVERYTHING WORKS
       </div>
     </div>
   </div>
@@ -177,7 +177,7 @@
       COMMANDS <span class="close-btn" onclick="togglePanel('commands')">X</span>
     </div>
     <div style="padding:10px;">
-      <div style="margin:8px 0; padding:8px; border:1px dashed #0a0; border-radius:4px; cursor:pointer;" onclick="log('clear'); consoleOutput.innerHTML=''">
+      <div style="margin:8px 0; padding:8px; border:1px dashed #0a0; border-radius:4px; cursor:pointer;" onclick="clearConsole()">
         <span style="color:var(--accent)">clear</span>
       </div>
       <div style="margin:8px 0; padding:8px; border:1px dashed #0a0; border-radius:4px; cursor:pointer;" onclick="cycleProxy()">
@@ -217,7 +217,7 @@
     let currentTheme = 'hacker';
     let favorites = JSON.parse(localStorage.getItem('nexusFavs') || '[]');
 
-    // === BOOT (GUARANTEED) ===
+    // === BOOT ===
     setTimeout(() => {
       boot.style.display = 'none';
       overlay.style.display = 'flex';
@@ -268,8 +268,9 @@
     // === STEALTH ===
     function toggleStealth() {
       document.body.classList.toggle('stealth');
-      document.getElementById('unhideBtn').style.display = document.body.classList.contains('stealth') ? 'block' : 'none';
-      log('STEALTH: ' + (document.body.classList.contains('stealth') ? 'ON' : 'OFF'));
+      const hidden = document.body.classList.contains('stealth');
+      document.getElementById('unhideBtn').style.display = hidden ? 'block' : 'none';
+      log('STEALTH: ' + (hidden ? 'ON' : 'OFF'));
     }
     function exitStealth() { document.body.classList.remove('stealth'); document.getElementById('unhideBtn').style.display = 'none'; log('UI RESTORED'); }
 
@@ -277,13 +278,16 @@
     function cycleProxy() {
       proxyIndex = (proxyIndex + 1) % proxies.length;
       useProxy = true;
+      document.getElementById('proxyBtn').textContent = `PROXY ${proxyIndex + 1}`;
       log(`PROXY ${proxyIndex + 1} ACTIVE`);
     }
 
     // === SOUND ===
     function toggleSound() {
       soundEnabled = !soundEnabled;
-      document.getElementById('soundBtn').classList.toggle('active', soundEnabled);
+      const btn = document.getElementById('soundBtn');
+      btn.classList.toggle('active', soundEnabled);
+      btn.textContent = soundEnabled ? 'SOUND ON' : 'SOUND';
       log(`SOUND: ${soundEnabled ? 'ON' : 'OFF'}`);
     }
 
@@ -298,7 +302,9 @@
     // === ALT ID ===
     function toggleAltID() {
       altID = !altID;
-      document.getElementById('altIDBtn').classList.toggle('active', altID);
+      const btn = document.getElementById('altIDBtn');
+      btn.classList.toggle('active', altID);
+      btn.textContent = altID ? 'ALT ID ON' : 'ALT ID';
       log(`ALT ID: ${altID ? 'ON (IP + Fingerprint Spoof)' : 'OFF'}`);
     }
 
@@ -360,13 +366,15 @@
     // === PANELS ===
     function togglePanel(id) {
       const panel = document.getElementById(id);
-      panel.classList.toggle('open');
-      log(`${id.toUpperCase()} ${panel.classList.contains('open') ? 'OPEN' : 'CLOSED'}`);
+      const isOpen = panel.classList.toggle('open');
+      log(`${id.toUpperCase()} ${isOpen ? 'OPEN' : 'CLOSED'}`);
     }
 
     // === SCANLINES ===
     function toggleScanlines() {
-      document.body.classList.toggle('crt', document.getElementById('scanlines').checked);
+      const checked = document.getElementById('scanlines').checked;
+      document.body.classList.toggle('crt', checked);
+      log(`SCANLINES: ${checked ? 'ON' : 'OFF'}`);
     }
 
     // === CONSOLE ===
