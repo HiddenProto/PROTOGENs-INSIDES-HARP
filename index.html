@@ -78,8 +78,6 @@
     .viewer { 
       width: 100%; 
       height: 640px; 
-      border: none; 
-      border TBD
       border: 1px solid var(--border);
       transition: all 0.3s;
     }
@@ -193,26 +191,33 @@
   <script>
     const frame = document.getElementById('siteFrame');
     const body = document.body;
+    const input = document.getElementById('urlInput');
 
     function loadSite() {
-      let url = document.getElementById('urlInput').value.trim();
+      let url = input.value.trim();
       if (!url) return alert("Enter a site!");
       if (!url.startsWith('http')) url = 'https://' + url;
       frame.src = url;
+      console.log('Loading:', url);  // Debug: Check browser console (F12)
       if (document.getElementById('autoFull').checked) setTimeout(() => frame.requestFullscreen(), 1000);
     }
 
     function openInTab() {
-      let url = document.getElementById('urlInput').value.trim();
+      let url = input.value.trim();
       if (!url) return alert("Enter a site!");
       if (!url.startsWith('http')) url = 'https://' + url;
       window.open(url, '_blank');
     }
 
     function loadPreset(site) {
-      document.getElementById('urlInput').value = site;
+      input.value = site;
       loadSite();
     }
+
+    // Enter key
+    input.addEventListener('keypress', e => {
+      if (e.key === 'Enter') loadSite();
+    });
 
     // Fullscreen
     frame.addEventListener('dblclick', () => frame.requestFullscreen());
